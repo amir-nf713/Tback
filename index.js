@@ -40,6 +40,12 @@ app.use(api, ticket)
 const course = require('./app/class/Rclass')
 app.use(api, course)
 
+const authentication = require('./app/Authentication/Rauthentication')
+app.use(api, authentication)
+
+const sendmony = require('./app/withdrawalMoney/RwithdrawalMoney')
+app.use(api, sendmony)
+
 
 
 
