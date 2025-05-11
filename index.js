@@ -1,5 +1,4 @@
 const express = require("express")
-const mongoose = require("mongoose")
 const app = express()
 const cors = require("cors")
 app.use(cors({
@@ -31,6 +30,10 @@ const api = '/api/tadrisyar'
 
 const login = require('./app/login/Rlogin')
 app.use(api, login)
+
+const loginAdmin = require('./app/admin/Radmin')
+app.use(api, loginAdmin)
+
 
 
 

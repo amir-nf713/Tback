@@ -134,3 +134,49 @@ exports.getuser = async (req, res) => {
         })
     }
 }
+
+exports.putuser = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const findUser = await Users.findOne({ _id });
+        if (!findUser) {
+          return res.json({ massage: "user not found" });
+        }
+
+        const updatedData = req.body;
+        const Id = findUser._id;
+
+        const update = await Users.findByIdAndUpdate(
+          Id,
+          { $set: updatedData },
+          { new: true }
+        );
+
+        res.json({ update });
+    } catch (error) {
+        res.json({
+            massage : error
+        })
+    }
+}
+
+exports.deleteuser = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const findUser = await Users.findOne({ _id });
+        if (!findUser) {
+          return res.json({ massage: "user not found" });
+        }
+
+        const deleteUser = await Users.deleteOne({ _id });
+
+        res.json({
+          data: deleteUser,
+        });
+    } catch (error) {
+        res.json({
+            massage : error
+        })
+    }
+}
+
