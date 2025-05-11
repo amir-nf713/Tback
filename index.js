@@ -34,6 +34,12 @@ app.use(api, login)
 const loginAdmin = require('./app/admin/Radmin')
 app.use(api, loginAdmin)
 
+const ticket = require('./app/ticket/Rticket')
+app.use(api, ticket)
+
+const course = require('./app/class/Rclass')
+app.use(api, course)
+
 
 
 

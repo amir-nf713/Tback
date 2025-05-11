@@ -126,7 +126,7 @@ exports.login = async(req, res) => {
 exports.getuser = async (req, res) => {
     try {
         res.json({
-            users: await Users.find()
+            data: await Users.find()
         })
     } catch (error) {
         res.json({
