@@ -3,7 +3,9 @@ const router = express.Router();
 const ticket = require('./ticket')
 
 router.get("/ticket",ticket.getticket )
+router.get("/ticket/:id",ticket.getticketbyid )
 router.get("/tickettext",ticket.gettickettext )
+router.get("/tickettext/:id",ticket.gettickettextbyid )
 
 router.post("/ticket",ticket.postticket )
 router.post("/tickettext",ticket.posttickettext )

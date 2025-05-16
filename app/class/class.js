@@ -8,7 +8,8 @@ const course = new mongoose.Schema({
    explanation: String,
    teachersname: String,
    price: Number,
-   photo: String
+   photo: String,
+//    student: String,
 
 });
   
@@ -45,6 +46,20 @@ exports.getcourse = async (req, res) => {
     try {
         res.json({
             data : await Course.find()
+        }) 
+    } catch (error) {
+        res.json({
+            massage : error
+        }) 
+    }
+}
+
+
+exports.getcoursebyid = async (req, res) => {
+    try {
+        const _id = req.params.id
+        res.json({
+            data : await Course.findOne({_id})
         }) 
     } catch (error) {
         res.json({
@@ -136,32 +151,59 @@ exports.getvideobyid = async (req, res) => {
 }
 
 
-exports.postvideo = async (req, res) => {
-    try {
-        const {courseid, video, videotitle} = req.body
-        if (!courseid || !video || !videotitle) {
-         return res.json({ massage: "data cant empty"})
-        }
- 
-        const saveVideo = new Video({
-         courseid,
-         video,
-         videotitle,
-        });
- 
-        const save = await saveVideo.save();
-     
-       
-        res.json({
-            massage: "ok"
-        })
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 
-    } catch (error) {
-        res.json({
-            massage : error
-        }) 
-    }
+// تنظیمات multer برای آپلود فایل‌ها
+const upload = multer({ dest: 'uploads/videos/' });
+
+// مسیر ذخیره فایل‌های ویدیو
+const uploadDir = path.join(__dirname, 'uploads', 'videos');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
 }
+
+// اپلود ویدیو
+exports.postvideo = [
+  upload.single('video'),  // multer برای پردازش فایل ویدیو
+  async (req, res) => {
+    try {
+      const { courseid, videotitle } = req.body;
+      const video = req.file;  // فایل ویدیو در req.file قرار می‌گیرد
+
+    //   if (!courseid || !video || !videotitle) {
+    //     return res.json({ massage: "data can't be empty" });
+    //   }
+
+      console.log("Received video:", req.body);  // چاپ داده‌های دریافتی
+
+      const videoPath = path.join(uploadDir, `${Date.now()}_${video.originalname}`);
+      
+      // انتقال فایل از موقتی به مسیر اصلی
+      fs.renameSync(video.path, videoPath);
+
+      console.log("Video saved at:", videoPath);
+
+      // ذخیره اطلاعات ویدیو در دیتابیس
+      const saveVideo = new Video({
+        courseid,
+        video: videoPath, // مسیر فایل ذخیره شده
+        videotitle,
+      });
+
+      const save = await saveVideo.save();
+      console.log("Video saved to database:", save);
+
+      res.json({ massage: "ok" });
+    } catch (error) {
+      console.error("Error in postvideo:", error);
+      res.json({ massage: error.message });
+    }
+  }
+];
+
+
 
 
 exports.deletevideo = async (req, res) => {

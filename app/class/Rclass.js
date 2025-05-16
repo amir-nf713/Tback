@@ -3,6 +3,7 @@ const router = express.Router();
 const Class = require('./class')
 
 router.get('/course', Class.getcourse)
+router.get('/course/:id', Class.getcoursebyid)
 router.post('/course', Class.postcourse)
 router.delete('/course/:id', Class.deletecourse)
 

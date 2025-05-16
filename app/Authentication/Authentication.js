@@ -50,9 +50,12 @@ exports.getauthenticationbyid = async (req, res) => {
 exports.postauthentication = async (req, res) => {
     try {
        const {userid, cartmeliphoto, codemeli, name, lastname,email ,gnder ,brthday} = req.body
-       if (!userid || !cartmeliphoto || !codemeli || !name || !lastname || !email || !gnder || !brthday) {
-        return res.json({ massage: "data cant empty"})
-       }
+    //    if (!userid || !cartmeliphoto || !codemeli || !name || !lastname || !email || !gnder || !brthday) {
+    //     return res.json({ massage: "data cant empty"})
+    //    }
+
+    //    console.log(req.body);
+       
 
        const saveauthentication = new Authentication({
         userid,

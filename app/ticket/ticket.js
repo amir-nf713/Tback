@@ -37,10 +37,35 @@ exports.getticket = async (req, res) => {
     }
 }
 
+exports.getticketbyid = async (req, res) => {
+    try {
+        const userid = req.params.id
+        res.json({
+            data : await Ticket.find({userid})
+        })   
+    } catch (error) {
+        res.json({
+            massage : error
+        })   
+    }
+}
+
 exports.gettickettext = async (req, res) => {
     try {
         res.json({
             data : await TicketText.find()
+        })   
+    } catch (error) {
+        res.json({
+            massage : error
+        })   
+    }
+}
+exports.gettickettextbyid = async (req, res) => {
+    const ticketid = req.params.id
+    try {
+        res.json({
+            data : await TicketText.find({ticketid})
         })   
     } catch (error) {
         res.json({
@@ -65,7 +90,8 @@ exports.postticket = async (req, res) => {
         
           
         res.json({
-            massage: "ok"
+            massage: "ok",
+            save: save
         })
     } catch (error) {
         res.json({

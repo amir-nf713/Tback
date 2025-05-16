@@ -62,22 +62,19 @@ exports.sendsms = async (req, res) => {
 
 exports.login = async(req, res) => {
     try {
-        const {number, code} = req.body
-        if (!number && !code) {
+        const {code} = req.body
+        if (!code) {
             return res.json({massage: "data is empty"})
         }
 
-        const findCode = await LoginCode.findOne({number})
-        if (!findCode) {
-            return res.json({massage: "number is undfind"})
-        }
-
-        if (findCode.number === number && findCode.code === code) {
-            const findUser = await Users.findOne({number})
+        
+ 
+ 
+        if (code === 'AsAz1323@@13!!!!') {
+            
               
             res.json({
                 login: "true",
-                code: code
             }) 
            
          }else{

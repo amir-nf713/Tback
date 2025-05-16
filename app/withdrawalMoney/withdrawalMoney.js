@@ -45,8 +45,8 @@ exports.getsendmonybyid = async (req, res) => {
 
 exports.postsendmony = async (req, res) => {
     try {
-       const {price, userid, shaba, date, status} = req.body
-       if (!price || !userid || !shaba || !date || !status) {
+       const {price, userid, shaba} = req.body
+       if (!price || !userid || !shaba) {
         return res.json({ massage: "data cant empty"})
        }
 
@@ -54,8 +54,6 @@ exports.postsendmony = async (req, res) => {
         price,
         userid,
         shaba,
-        date,
-        status,
        });
 
        const save = await savesendmony.save();
@@ -69,6 +67,32 @@ exports.postsendmony = async (req, res) => {
         res.json({
             massage : error
         }) 
+    }
+}
+
+
+exports.putsendmony = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const findUser = await Sendmony.findOne({ _id });
+        if (!findUser) {
+          return res.json({ massage: "user not found" });
+        }
+
+        const updatedData = req.body;
+        const Id = findUser._id;
+
+        const update = await Sendmony.findByIdAndUpdate(
+          Id,
+          { $set: updatedData },
+          { new: true }
+        );
+
+        res.json({ update });
+    } catch (error) {
+        res.json({
+            massage : error
+        })
     }
 }
 

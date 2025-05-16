@@ -65,12 +65,15 @@ exports.sendsms = async (req, res) => {
           });
           const savecode = await savecodee.save();
 
+          if (!savecode) {
+            return res.json({ massege : "dont save"})
+          }
+          
           res.json({
-            massage: "ok"
+            massege: "ok",
           })
 
 
-      
           
           
     } catch (error) {
@@ -102,13 +105,16 @@ exports.login = async(req, res) => {
 
                 const save = await saveuser.save();
                 
-                  
+                  if (!save) {
+                    return res.json({ massege : "dont save"})
+                  }
                 res.json({
-                    massage: "ok"
+                    massage: "ok",
+                    data: save
                 })
 
             }else{ 
-                return res.json({login: "true"}) 
+                return res.json({login: "true", data : findUser}) 
             }
             
         }else{
@@ -123,10 +129,53 @@ exports.login = async(req, res) => {
     }
 }
 
+exports.getcode = async (req, res) => {
+    try {
+
+        const {number, code} = req.body
+
+        const findCode = await LoginCode.findOne({code})
+        if (!findCode) {
+            return res.json({massage: "number is undfind"})
+        }
+        if (findCode.number == number || findCode.code === code) {
+           console.log(findCode.code , code);
+           
+                
+                
+
+           
+           return res.json({massage : "ok"})
+            
+        }
+        res.json({
+            massage : "no"
+        })
+    } catch (error) {
+        res.json({
+            massage : error
+        })
+    }
+}
+
 exports.getuser = async (req, res) => {
     try {
         res.json({
             data: await Users.find()
+        })
+    } catch (error) {
+        res.json({
+            massage : error
+        })
+    }
+}
+
+
+exports.getuserbyid = async (req, res) => {
+    try {
+        const _id = req.params.id
+        res.json({
+            data: await Users.findOne({_id})
         })
     } catch (error) {
         res.json({
