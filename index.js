@@ -2,7 +2,7 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 app.use(cors({
-    origin: ["*", "http://localhost:3000"],
+    origin: ["*", "http://localhost:3000", 'http://185.243.48.159:3000'],
     methods: ['PUT', 'GET', 'POST', 'DELETE'],
     credentials: true
 
@@ -14,7 +14,7 @@ app.use(express.urlencoded({ limit: '100000000000mb', extended: true }));
 
 app.set('trust proxy', true);
 
-const allowedOrigins = ['*', 'http://localhost:3000'];
+const allowedOrigins = ['*', 'http://localhost:3000', 'http://185.243.48.159:3000'];
 
 app.use((req, res, next) => {
     const origin = req.headers.origin;
