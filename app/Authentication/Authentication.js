@@ -83,3 +83,26 @@ exports.postauthentication = async (req, res) => {
 }
 
 
+
+
+exports.closeathu = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const closeTickettext = await Authentication.findOne({ _id });
+        if (!closeTickettext) {
+          return res.json({ massage: "tickettext not found" });
+        }
+
+        const deletTickettext = await Authentication.deleteOne({ _id });
+
+        res.json({
+          data: deletTickettext,
+        });
+    } catch (error) {
+        res.json({
+            massage : error
+        })
+    }
+}
+
+
