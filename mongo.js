@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const mongoURL = {
-  host: 'localhost',
+  host: '127.0.0.1',  // یا آی‌پی خارجی سرور شما
   port: '27017',
   dbName: 'tadrisyar',
   get url() {
