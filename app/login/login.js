@@ -9,6 +9,14 @@ const loginCode = new mongoose.Schema({
   expiresAt: { type: Date, default: Date.now, index: { expires: "2m" } },
 });
 
+const smsRequestSchema = new mongoose.Schema({
+    number: String,
+    requestedAt: { type: Date, default: Date.now }, // زمان درخواست
+  });
+  
+  const SmsRequest = mongoose.model('SmsRequest', smsRequestSchema);
+  
+
 const LoginCode = mongoose.model("loginCode", loginCode);
 
 const users = new mongoose.Schema(
@@ -36,6 +44,17 @@ exports.sendsms = async (req, res) => {
   try {
     const Number = req.params.num;
     const randomCode = Math.floor(Math.random() * 999999);
+
+    const requests = await SmsRequest.find({
+        number: Number,
+        requestedAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) }, // فقط درخواست‌های 5 دقیقه گذشته
+      });
+      
+      // اگر تعداد درخواست‌ها بیشتر از 5 تا باشد، درخواست جدید پذیرفته نمی‌شود
+      if (requests.length >= 5) {
+        return res.json({ message: "You have reached the limit of requests (5 per 5 minutes)" });
+      }
+      
     const response = await axios.post(
       "https://api2.ippanel.com/api/v1/sms/pattern/normal/send",
       {
@@ -55,6 +74,12 @@ exports.sendsms = async (req, res) => {
         },
       }
     );
+
+    const saveRequest = new SmsRequest({
+        number: Number,
+      });
+      await saveRequest.save();
+      
 
     const savecodee = new LoginCode({
       number: Number,
