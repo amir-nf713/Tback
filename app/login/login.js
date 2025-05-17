@@ -83,12 +83,12 @@ exports.login = async (req, res) => {
       return res.json({ massage: "data is empty" });
     }
 
-    const findCode = await LoginCode.findOne({ number }).sort({
-      createdAt: -1,
-    }); // مرتب‌سازی بر اساس تاریخ به صورت نزولی (جدیدترین اول)
-    if (!findCode) {
-      return res.json({ message: "number not found" });
-    }
+    const findCode = await LoginCode.findOne({ number })
+  .sort({ expiresAt: -1 });  // مرتب‌سازی بر اساس تاریخ انقضا به صورت نزولی (جدیدترین اول)
+if (!findCode) {
+  return res.json({ message: "No valid code found" });
+}
+
 
     if (findCode.number === number && findCode.code === code) {
       const findUser = await Users.findOne({ number });
