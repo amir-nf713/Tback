@@ -37,6 +37,31 @@ exports.getticket = async (req, res) => {
     }
 }
 
+exports.putticket = async (req, res) => {
+    try {
+      const _id = req.params.id;
+      const findTicket = await Ticket.findOne({ _id });
+      if (!findTicket) {
+        return res.json({ massage: "ticket not found" });
+      }
+  
+      const updatedData = req.body;
+      const Id = findTicket._id;
+  
+      const update = await Ticket.findByIdAndUpdate(
+        Id,
+        { $set: updatedData },
+        { new: true }
+      );
+  
+      res.json({ update });
+    } catch (error) {
+      res.json({
+        massage: error,
+      });
+    }
+  };
+
 exports.getticketbyid = async (req, res) => {
     try {
         const userid = req.params.id
