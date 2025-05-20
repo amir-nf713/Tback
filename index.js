@@ -1,6 +1,7 @@
 const express = require("express")
 const app = express()
-const cors = require("cors")
+const cors = require("cors");
+const { default: axios } = require("axios");
 app.use(cors({
     origin: ["*", "http://localhost:3000", 'http://185.243.48.159:3000', 'http://dash.tadrisyar.com'],
     methods: ['PUT', 'GET', 'POST', 'DELETE'],
@@ -49,6 +50,9 @@ app.use(api, authentication)
 
 const sendmony = require('./app/withdrawalMoney/RwithdrawalMoney')
 app.use(api, sendmony)
+
+const getprice = require('./app/USD/Rusd')
+app.use(api, getprice)
 
 
 
