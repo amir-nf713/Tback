@@ -27,10 +27,10 @@ const fetchUsdPrice = async () => {
 };
 
 
-// fetchUsdPrice();
+fetchUsdPrice()
 
 
-// setInterval(fetchUsdPrice, 60 * 1000);
+setInterval(fetchUsdPrice, 60 * 1000);
 
 
 exports.getUsd = async (req, res) => {
