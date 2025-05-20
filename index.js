@@ -49,6 +49,9 @@ app.use(api, authentication)
 const sendmony = require('./app/withdrawalMoney/RwithdrawalMoney')
 app.use(api, sendmony)
 
+const senSms = require('./app/sms/Rsms')
+app.use(api, senSms)
+
 // .
 
 
