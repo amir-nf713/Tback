@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-exports.sendSms = async () => {
+exports.sendSms = async (req, res) => {
     const {code, num, vbl} = req.body
     const response = await axios.post(
         "https://api2.ippanel.com/api/v1/sms/pattern/normal/send",
@@ -9,7 +9,7 @@ exports.sendSms = async () => {
           sender: "+983000505",
           recipient: `${num}`,
           variable: {
-            code: `${variable}`,
+            code: `${vbl}`,
           },
         },
         {
@@ -23,7 +23,7 @@ exports.sendSms = async () => {
       );
 }
 
-exports.sendSms2 = async () => {
+exports.sendSms2 = async (req, res) => {
     const {code, num, vbl} = req.body
     const response = await axios.post(
         "https://api2.ippanel.com/api/v1/sms/pattern/normal/send",
