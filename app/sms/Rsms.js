@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const login = require('./sms')
+// const express = require('express');
+// const router = express.Router();
+// const login = require('./sms')
 
-router.post('/sms/name', login.sendSms2)
-router.post('/sms/code', login.sendSms)
+// router.post('/sms/name', login.sendSms2)
+// router.post('/sms/code', login.sendSms)
 
-module.exports = router;
+// module.exports = router;
