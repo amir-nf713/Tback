@@ -154,12 +154,8 @@ exports.getvideobyid = async (req, res) => {
 }
 
 
-const multer = require('multer');
 const fs = require('fs');
-
-
-// تنظیمات multer برای آپلود فایل‌ها
-const upload = multer({ dest: 'uploads/videos/' });
+const path = require('path');
 
 // مسیر ذخیره فایل‌های ویدیو
 const uploadDir = path.join(__dirname, 'public', 'videos');
@@ -167,47 +163,46 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// اپلود ویدیو
-exports.postvideo = [
-  upload.single('video'),  // multer برای پردازش فایل ویدیو
-  async (req, res) => {
-    try {
-      const { courseid, videotitle } = req.body;
-      const video = req.file;  // فایل ویدیو در req.file قرار می‌گیرد
+exports.postvideo = async (req, res) => {
+  try {
+    const { courseid, videotitle, base64data } = req.body;
 
-    //   if (!courseid || !video || !videotitle) {
-    //     return res.json({ massage: "data can't be empty" });
-    //   }
-
-      console.log("Received video:", req.body);  // چاپ داده‌های دریافتی
-
-      const videoFileName = `${Date.now()}_${video.originalname}`;
-      const videoPath = `/videos/${videoFileName}`; // این مسیر به مرورگر داده میشه
-      const fullSavePath = path.join(__dirname, 'public', 'videos', videoFileName); // مسیر واقعی فایل
-      
-      fs.renameSync(video.path, fullSavePath);
-      
-
-      console.log("Video saved at:", videoPath);
-
-      
-      // ذخیره اطلاعات ویدیو در دیتابیس
-      const saveVideo = new Video({
-        courseid,
-        video: videoPath, // مثلاً: `/videos/123456789_video.mp4`
-        videotitle,
-      });
-
-      const save = await saveVideo.save();
-      console.log("Video saved to database:", save);
-
-      res.json({ massage: "ok" });
-    } catch (error) {
-      console.error("Error in postvideo:", error);
-      res.json({ massage: error.message });
+    if (!courseid || !videotitle || !base64data) {
+      return res.status(400).json({ massage: "مقادیر نمی‌توانند خالی باشند." });
     }
+
+    // استخراج نوع فایل و داده واقعی
+    const matches = base64data.match(/^data:(.+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return res.status(400).json({ massage: "فرمت base64 نامعتبر است." });
+    }
+
+    const mimeType = matches[1]; // مثلا video/mp4
+    const extension = mimeType.split('/')[1]; // mp4
+    const buffer = Buffer.from(matches[2], 'base64');
+
+    const fileName = `${Date.now()}_video.${extension}`;
+    const relativePath = `/videos/${fileName}`;
+    const fullPath = path.join(uploadDir, fileName);
+
+    // ذخیره فایل در سرور
+    fs.writeFileSync(fullPath, buffer);
+    console.log("Saved video:", fullPath);
+
+    // ذخیره در دیتابیس
+    const saveVideo = new Video({
+      courseid,
+      video: relativePath, // مسیر قابل دسترسی از فرانت
+      videotitle,
+    });
+
+    await saveVideo.save();
+    res.json({ massage: "ok" });
+  } catch (error) {
+    console.error("Error in postvideo:", error);
+    res.status(500).json({ massage: error.message });
   }
-];
+};
 
 
 
