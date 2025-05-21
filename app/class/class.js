@@ -154,56 +154,29 @@ exports.getvideobyid = async (req, res) => {
 }
 
 
-const fs = require('fs');
-
-
-// مسیر ذخیره فایل‌های ویدیو
-const uploadDir = path.join(__dirname, 'public', 'videos');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
 exports.postvideo = async (req, res) => {
-  try {
-    const { courseid, videotitle, base64data } = req.body;
-
-    if (!courseid || !videotitle || !base64data) {
-      return res.status(400).json({ massage: "مقادیر نمی‌توانند خالی باشند." });
+    try {
+      const { courseid, videotitle, base64data } = req.body;
+  
+      if (!base64data || !videotitle || !courseid) {
+        return res.json({ massage: "اطلاعات ناقص است" });
+      }
+  
+      const newVideo = new Video({
+        courseid,
+        videotitle,
+        base64data,  // کل رشته‌ی base64 مثل "data:video/mp4;base64,..."
+      });
+  
+      await newVideo.save();
+  
+      res.json({ massage: "ok" });
+    } catch (error) {
+      console.error("خطا در ذخیره ویدیو:", error);
+      res.status(500).json({ massage: error.message });
     }
-
-    // استخراج نوع فایل و داده واقعی
-    const matches = base64data.match(/^data:(.+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      return res.status(400).json({ massage: "فرمت base64 نامعتبر است." });
-    }
-
-    const mimeType = matches[1]; // مثلا video/mp4
-    const extension = mimeType.split('/')[1]; // mp4
-    const buffer = Buffer.from(matches[2], 'base64');
-
-    const fileName = `${Date.now()}_video.${extension}`;
-    const relativePath = `/videos/${fileName}`;
-    const fullPath = path.join(uploadDir, fileName);
-
-    // ذخیره فایل در سرور
-    fs.writeFileSync(fullPath, buffer);
-    console.log("Saved video:", fullPath);
-
-    // ذخیره در دیتابیس
-    const saveVideo = new Video({
-      courseid,
-      video: relativePath, // مسیر قابل دسترسی از فرانت
-      videotitle,
-    });
-
-    await saveVideo.save();
-    res.json({ massage: "ok" });
-  } catch (error) {
-    console.error("Error in postvideo:", error);
-    res.status(500).json({ massage: error.message });
-  }
-};
-
+  };
+  
 
 
 
