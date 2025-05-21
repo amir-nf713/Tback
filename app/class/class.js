@@ -165,7 +165,7 @@ exports.postvideo = async (req, res) => {
       const newVideo = new Video({
         courseid,
         videotitle,
-        base64data,  // کل رشته‌ی base64 مثل "data:video/mp4;base64,..."
+        video : base64data,  // کل رشته‌ی base64 مثل "data:video/mp4;base64,..."
       });
   
       await newVideo.save();
