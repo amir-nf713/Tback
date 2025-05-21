@@ -159,7 +159,7 @@ const path = require('path');
 const upload = multer({ dest: 'uploads/videos/' });
 
 // مسیر ذخیره فایل‌های ویدیو
-const uploadDir = path.join(__dirname, 'uploads', 'videos');
+const uploadDir = path.join(__dirname, 'public', 'videos');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -178,17 +178,16 @@ exports.postvideo = [
 
       console.log("Received video:", req.body);  // چاپ داده‌های دریافتی
 
-      const videoPath = path.join(uploadDir, `${Date.now()}_${video.originalname}`);
-      
-      // انتقال فایل از موقتی به مسیر اصلی
-      fs.renameSync(video.path, videoPath);
+      const videoPath = `/videos/${Date.now()}_${video.originalname}`; // مسیر نسبی برای فرانت
+fs.renameSync(video.path, path.join(__dirname, 'public', videoPath));
 
       console.log("Video saved at:", videoPath);
 
+      app.use('/videos', express.static(path.join(__dirname, 'public', 'videos')));
       // ذخیره اطلاعات ویدیو در دیتابیس
       const saveVideo = new Video({
         courseid,
-        video: videoPath, // مسیر فایل ذخیره شده
+        video: videoPath, // مثلاً: `/videos/123456789_video.mp4`
         videotitle,
       });
 
