@@ -19,7 +19,7 @@ router.post('/users/course', Class.postusersCourse)
 
 
 router.post('/pay', Class.pay)
-router.post('/verify', Class.verify)
+router.get('/verify', Class.verify)
 
 
 module.exports = router;
