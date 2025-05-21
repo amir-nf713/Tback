@@ -7,7 +7,7 @@ let EUR = null;
 
 const fetchUsdPrice = async () => {
   try {
-    const response = await axios.get("https://BrsApi.ir/Api/Market/Cryptocurrency.php?key=FreeyD7ZoFEmluZwQHgEJlwffqDt0FPr");
+    const response = await axios.get("https://BrsApi.ir/Api/Market/Cryptocurrency.php?key=FreelAbyPRxtXFErunxhE4tfoUi19MO8");
 
     response.data.forEach(element => {
         if (element.name === "Tether") {
