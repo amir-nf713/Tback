@@ -1,48 +1,152 @@
-const axios  = require("axios");
-const path = require('path');
+const axios = require("axios");
+const mongoose = require("mongoose");
+const connectToMongo = require("../../mongo");
 
-
-const connectToMongo = require("../../mongo")
-connectToMongo()
-const mongoose = require('mongoose');
+connectToMongo();
 
 const course = new mongoose.Schema({
-   title: String,
-   explanation: String,
-   teachersname: String,
-   price: Number,
-   photo: String,
-//    student: String,
-
+  title: String,
+  explanation: String,
+  teachersname: String,
+  price: Number,
+  photo: String,
 });
-  
-  
-const Course = mongoose.model('course', course);
 
-
-
+const Course = mongoose.model("course", course);
 
 const video = new mongoose.Schema({
-   courseid: String,
-   video: String,
-   videotitle: String
+  courseid: String,
+  video: String,
+  videotitle: String,
 });
-  
-  
-const Video = mongoose.model('video', video);
 
-
-
+const Video = mongoose.model("video", video);
 
 const usersCourse = new mongoose.Schema({
-   userid: String,
-   courseid: String,
-   date: {type: Date, default: Date.now}
+  userid: String,
+  courseid: String,
+  date: { type: Date, default: Date.now },
 });
-  
-  
-const UsersCourse = mongoose.model('usersCourse', usersCourse);
 
+const UsersCourse = mongoose.model("usersCourse", usersCourse);
+
+// مدل برای ذخیره اطلاعات پرداخت
+const paymentSchema = new mongoose.Schema({
+  userId: String,
+  courseId: String,
+  amount: Number,
+  authority: String,
+  status: String,
+  refId: String,
+  date: { type: Date, default: Date.now },
+});
+
+const Payment = mongoose.model("payment", paymentSchema);
+
+const MERCHANT_ID = "682d7237a45c72000e5263b3"; 
+const CALLBACK_URL = "http://localhost:3001/verify"; 
+
+// پرداخت
+exports.pay = async (req, res) => {
+  const { courseId, title, userId } = req.body;
+
+  if (!courseId || !title || !userId) {
+    return res.status(400).json({ error: "اطلاعات ناقص است" });
+  }
+
+  const course = await Course.findOne({ _id: courseId });
+  if (!course) {
+    return res.status(400).json({ error: "دوره مورد نظر یافت نشد" });
+  }
+  
+  const price = course.price * 10; // قیمت به ریال تبدیل می‌شود
+
+  try {
+    const response = await axios.post("https://api.zarinpal.com/pg/v4/payment/request.json", {
+      merchant_id: MERCHANT_ID,
+      amount: price,
+      callback_url: `${CALLBACK_URL}?amount=${price}&courseId=${courseId}&userId=${userId}`,
+      description: `پرداخت برای ${title}`,
+    }, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const { data } = response.data;
+    if (data.code === 100) {
+      // ذخیره اطلاعات پرداخت در دیتابیس
+      const newPayment = new Payment({
+        userId,
+        courseId,
+        amount: price,
+        authority: data.authority,
+        status: "در حال انتظار",
+      });
+
+      await newPayment.save();
+
+      res.json({ url: `https://www.zarinpal.com/pg/StartPay/${data.authority}` });
+    } else {
+      res.status(400).json({ error: data.message });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "خطای سرور در پرداخت" });
+  }
+};
+
+// تایید پرداخت
+exports.verify = async (req, res) => {
+  const { Authority, Status, amount, courseId, userId } = req.query;
+
+  if (Status !== "OK") {
+    return res.send("❌ پرداخت لغو یا ناموفق بود.");
+  }
+
+  if (!amount || !Authority || !courseId || !userId) {
+    return res.status(400).send("اطلاعات تایید ناقص است.");
+  }
+
+  try {
+    const response = await axios.post("https://api.zarinpal.com/pg/v4/payment/verify.json", {
+      merchant_id: MERCHANT_ID,
+      amount: parseInt(amount), // اطمینان از اینکه مبلغ به درستی به عدد تبدیل شود
+      authority: Authority,
+    }, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const { data } = response.data;
+
+    if (data.code === 100) {
+      // به روزرسانی وضعیت پرداخت در دیتابیس
+      const payment = await Payment.findOneAndUpdate(
+        { authority: Authority },
+        { status: 'موفق', refId: data.ref_id },
+        { new: true }
+      );
+
+      // ثبت دوره برای کاربر
+      const newUserCourse = new UsersCourse({
+        userId,
+        courseId,
+      });
+
+      await newUserCourse.save();
+
+      res.send(`
+        ✅ پرداخت موفق برای دوره ${courseId}
+        <br>👤 کاربر: ${userId}
+        <br>💳 مبلغ: ${amount} ریال
+        <br>🧾 کد پیگیری: ${data.ref_id}
+      `);
+    } else {
+      res.send(`❌ پرداخت ناموفق بود: ${data.message}`);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("خطای سرور در تایید پرداخت");
+  }
+};
 
 
 exports.getcourse = async (req, res) => {

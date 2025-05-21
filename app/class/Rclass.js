@@ -18,4 +18,8 @@ router.get('/users/course/:id', Class.getusersCourseById)
 router.post('/users/course', Class.postusersCourse)
 
 
+router.post('/pay', Class.pay)
+router.post('/verify', Class.verify)
+
+
 module.exports = router;
