@@ -1,4 +1,5 @@
 const axios  = require("axios");
+
 const connectToMongo = require("../../mongo")
 connectToMongo()
 const mongoose = require('mongoose');
@@ -178,12 +179,16 @@ exports.postvideo = [
 
       console.log("Received video:", req.body);  // چاپ داده‌های دریافتی
 
-      const videoPath = `/videos/${Date.now()}_${video.originalname}`; // مسیر نسبی برای فرانت
-fs.renameSync(video.path, path.join(__dirname, 'public', videoPath));
+      const videoFileName = `${Date.now()}_${video.originalname}`;
+      const videoPath = `/videos/${videoFileName}`; // این مسیر به مرورگر داده میشه
+      const fullSavePath = path.join(__dirname, 'public', 'videos', videoFileName); // مسیر واقعی فایل
+      
+      fs.renameSync(video.path, fullSavePath);
+      
 
       console.log("Video saved at:", videoPath);
 
-      app.use('/videos', express.static(path.join(__dirname, 'public', 'videos')));
+      
       // ذخیره اطلاعات ویدیو در دیتابیس
       const saveVideo = new Video({
         courseid,

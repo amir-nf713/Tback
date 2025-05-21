@@ -1,5 +1,7 @@
 const express = require("express")
 const app = express()
+app.use('/videos', express.static(path.join(__dirname, 'public', 'videos')));
+
 const cors = require("cors");
 const { default: axios } = require("axios");
 app.use(cors({
