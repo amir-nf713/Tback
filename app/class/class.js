@@ -89,9 +89,10 @@ exports.pay = async (req, res) => {
       res.status(400).json({ error: data.message });
     }
   } catch (error) {
-    console.error(error);
+    console.error("❌ خطا در تماس با زرین‌پال:", error?.response?.data || error.message || error);
     res.status(500).json({ error: "خطای سرور در پرداخت" });
   }
+  
 };
 
 // تایید پرداخت
