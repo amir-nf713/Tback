@@ -133,12 +133,8 @@ exports.verify = async (req, res) => {
 
       await newUserCourse.save();
 
-      res.send(`
-        ✅ پرداخت موفق برای دوره ${courseId}
-        <br>👤 کاربر: ${userId}
-        <br>💳 مبلغ: ${amount} ریال
-        <br>🧾 کد پیگیری: ${data.ref_id}
-      `);
+      res.redirect("https://dash.tadrisyar.com/userPannle/userCourse");
+
     } else {
       res.send(`❌ پرداخت ناموفق بود: ${data.message}`);
     }
