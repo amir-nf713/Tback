@@ -44,9 +44,8 @@ const paymentSchema = new mongoose.Schema({
 const Payment = mongoose.model("payment", paymentSchema);
 
 const MERCHANT_ID = "682d7237a45c72000e5263b3"; 
-const CALLBACK_URL = "https://dash.tadrisyar.com/api/tadrisyar/verify" 
+const CALLBACK_URL = "https://dash.tadrisyar.com/api/tadrisyar/verify";
 
-// پرداخت
 exports.pay = async (req, res) => {
   const { courseId, title, userId } = req.body;
 
@@ -54,76 +53,67 @@ exports.pay = async (req, res) => {
     return res.status(400).json({ error: "اطلاعات ناقص است" });
   }
 
-  const course = await Course.findOne({ _id: courseId });
+  const course = await Course.findById(courseId);
   if (!course) {
-    return res.status(400).json({ error: "دوره مورد نظر یافت نشد" });
+    return res.status(400).json({ error: "دوره یافت نشد" });
   }
-  
-  const price = Number(course.price * 10); // قیمت به ریال تبدیل می‌شود
+
+  const price = Number(course.price * 10); // تبدیل تومان به ریال
 
   try {
-    const response = await axios.post("https://api.zarinpal.com/pg/v4/payment/request.json", {
-      merchant_id: MERCHANT_ID,
+    const zibalRes = await axios.post("https://api.zibal.ir/v1/request", {
+      merchant: MERCHANT_ID,
       amount: price,
-      callback_url: `${CALLBACK_URL}?amount=${price}&courseId=${courseId}&userId=${userId}`,
+      callbackUrl: `${CALLBACK_URL}?amount=${price}&courseId=${courseId}&userId=${userId}`,
       description: `پرداخت برای ${title}`,
-    }, {
-      headers: { "Content-Type": "application/json" },
     });
 
-    const { data } = response.data;
-    if (data.code === 100) {
-      // ذخیره اطلاعات پرداخت در دیتابیس
+    const { result, trackId, message } = zibalRes.data;
+
+    if (result === 100) {
+      // ذخیره در دیتابیس
       const newPayment = new Payment({
         userId,
         courseId,
         amount: price,
-        authority: data.authority,
-        status: "در حال انتظار",
+        authority: trackId,
+        status: "در انتظار",
       });
 
       await newPayment.save();
 
-      res.json({ url: `https://www.zarinpal.com/pg/StartPay/${data.authority}` });
+      return res.json({ url: `https://gateway.zibal.ir/start/${trackId}` });
     } else {
-      res.status(400).json({ error: data.message });
+      return res.status(400).json({ error: message });
     }
-  } catch (error) {
-    console.error("❌ خطا در تماس با زرین‌پال:", error?.response?.data || error.message || error);
+  } catch (err) {
+    console.error("خطا در اتصال به زیبال:", err);
     res.status(500).json({ error: "خطای سرور در پرداخت" });
   }
-  
 };
+
 
 // تایید پرداخت
 exports.verify = async (req, res) => {
-  const { Authority, Status, amount, courseId, userId } = req.query;
+  const { trackId, amount, courseId, userId } = req.query;
 
-  if (Status !== "OK") {
-    return res.send("❌ پرداخت لغو یا ناموفق بود.");
-  }
-
-  if (!amount || !Authority || !courseId || !userId) {
-    return res.status(400).send("اطلاعات تایید ناقص است.");
+  if (!trackId || !amount || !courseId || !userId) {
+    return res.status(400).send("اطلاعات ناقص است");
   }
 
   try {
-    const response = await axios.post("https://api.zarinpal.com/pg/v4/payment/verify.json", {
-      merchant_id: MERCHANT_ID,
-      amount: parseInt(amount), // اطمینان از اینکه مبلغ به درستی به عدد تبدیل شود
-      authority: Authority,
-    }, {
-      headers: { "Content-Type": "application/json" },
+    const verifyRes = await axios.post("https://api.zibal.ir/v1/verify", {
+      merchant: MERCHANT_ID,
+      trackId,
     });
 
-    const { data } = response.data;
+    const { result, message, refNumber } = verifyRes.data;
 
-    if (data.code === 100) {
-      // به روزرسانی وضعیت پرداخت در دیتابیس
-      const payment = await Payment.findOneAndUpdate(
-        { authority: Authority },
-        { status: 'موفق', refId: data.ref_id },
-        { new: true }
+    if (result === 100) {
+      // به‌روزرسانی پرداخت
+      await Payment.findOneAndUpdate(
+        { authority: trackId },
+        { status: "موفق", refId: refNumber }
       );
 
       // ثبت دوره برای کاربر
@@ -135,15 +125,15 @@ exports.verify = async (req, res) => {
       await newUserCourse.save();
 
       res.redirect("https://dash.tadrisyar.com/userPannle/userCourse");
-
     } else {
-      res.send(`❌ پرداخت ناموفق بود: ${data.message}`);
+      res.send(`❌ پرداخت ناموفق بود: ${message}`);
     }
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error("خطا در تایید پرداخت:", err);
     res.status(500).send("خطای سرور در تایید پرداخت");
   }
 };
+
 
 
 exports.getcourse = async (req, res) => {
