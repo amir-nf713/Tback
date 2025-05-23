@@ -44,7 +44,7 @@ const paymentSchema = new mongoose.Schema({
 const Payment = mongoose.model("payment", paymentSchema);
 
 const MERCHANT_ID = "682d7237a45c72000e5263b3"; 
-const CALLBACK_URL = "http://185.243.48.159:3001/api/tadrisyar/verify" 
+const CALLBACK_URL = "https://dash.tadrisyar.com/api/tadrisyar/verify" 
 
 // پرداخت
 exports.pay = async (req, res) => {
