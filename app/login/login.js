@@ -2,6 +2,7 @@ const axios = require("axios");
 const connectToMongo = require("../../mongo");
 connectToMongo();
 const mongoose = require("mongoose");
+const { use } = require("./Rlogin");
 
 const loginCode = new mongoose.Schema({
   number: Number,
@@ -182,8 +183,14 @@ exports.getuser = async (req, res) => {
 exports.getuserbyid = async (req, res) => {
   try {
     const _id = req.params.id;
+    const user = await Users.findOne({ _id })
+    if (!user) {
+      res.json({
+        data: "not found"
+      });
+    }
     res.json({
-      data: await Users.findOne({ _id }),
+      data: user
     });
   } catch (error) {
     res.json({
