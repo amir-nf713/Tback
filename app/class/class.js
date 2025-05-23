@@ -59,7 +59,7 @@ exports.pay = async (req, res) => {
     return res.status(400).json({ error: "دوره مورد نظر یافت نشد" });
   }
   
-  const price = course.price * 10; // قیمت به ریال تبدیل می‌شود
+  const price = Number(course.price * 10); // قیمت به ریال تبدیل می‌شود
 
   try {
     const response = await axios.post("https://api.zarinpal.com/pg/v4/payment/request.json", {
