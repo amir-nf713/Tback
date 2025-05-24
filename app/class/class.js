@@ -118,8 +118,8 @@ exports.verify = async (req, res) => {
 
       // ثبت دوره برای کاربر
       const newUserCourse = new UsersCourse({
-        userId,
-        courseId,
+        userid : userId,
+        courseid : courseId,
       });
 
       await newUserCourse.save();
