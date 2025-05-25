@@ -181,23 +181,23 @@ exports.getuser = async (req, res) => {
 };
 
 exports.getuserbyid = async (req, res) => {
-  try {
-    const _id = req.params.id;
-    const user = await Users.findOne({ _id })
-    if (!user) {
-      res.json({
-        data: "not found"
-      });
-    }
-    res.json({
-      data: user
-    });
-  } catch (error) {
-    res.json({
-      massage: error,
-    });
-  }
-};
+    try {
+      const _id = req.params.id;
+      const user = await Users.findOne({ _id });
+      if (!user) {
+        return res.json({
+          data: "not found"
+        });
+      }
+      res.json({
+        data: user
+      });
+    } catch (error) {
+      res.json({
+        message: error.message || error,
+      });
+    }
+  };
 
 exports.putuser = async (req, res) => {
   try {
