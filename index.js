@@ -12,8 +12,8 @@ app.use(cors({
     credentials: true
 
 }))
-app.use(express.json({ limit: '100000000000mb' }));
-app.use(express.urlencoded({ limit: '100000000000mb', extended: true }));
+app.use(express.json({ limit: '4000mb' }));
+app.use(express.urlencoded({ limit: '4000mb', extended: true }));
 
 
 
