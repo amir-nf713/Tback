@@ -51,6 +51,27 @@ exports.getNotif = async (req, res) => {
 }
 
 
+exports.deleteNotif = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const closeTickettext = await Notification.findOne({ _id });
+        if (!closeTickettext) {
+          return res.json({ massage: "tickettext not found" });
+        }
+
+        const deletTickettext = await Notification.deleteOne({ _id });
+
+        res.json({
+          data: deletTickettext,
+        });
+    } catch (error) {
+        res.json({
+            massage : error
+        })
+    }
+}
+
+
 
 
 
