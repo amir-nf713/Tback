@@ -51,26 +51,22 @@ exports.getNotif = async (req, res) => {
 }
 
 
-exports.deleteNotif = async (req, res) => {
+exports.deleteAllNotif = async (req, res) => {
     try {
-        const _id = req.params.id;
-        const closeTickettext = await Notification.findOne({ _id });
-        if (!closeTickettext) {
-          return res.json({ massage: "tickettext not found" });
-        }
-
-        const deletTickettext = await Notification.deleteOne({ _id });
-
-        res.json({
-          data: deletTickettext,
-        });
+      const result = await Notification.deleteMany({}); // حذف همه رکوردها
+  
+      res.json({
+        message: "تمام نوتیفیکیشن‌ها با موفقیت حذف شدند",
+        data: result, // result شامل تعداد اسناد حذف‌شده است
+      });
     } catch (error) {
-        res.json({
-            massage : error
-        })
+      res.status(500).json({
+        message: "خطا در حذف نوتیفیکیشن‌ها",
+        error: error.message,
+      });
     }
-}
-
+  };
+  
 
 
 
