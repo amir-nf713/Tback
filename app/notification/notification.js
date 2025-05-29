@@ -1,16 +1,16 @@
 const axios  = require("axios");
-// const connectToMongo = require("../../mongo")
-// connectToMongo()
-// const mongoose = require('mongoose');
+const connectToMongo = require("../../mongo")
+connectToMongo()
+const mongoose = require('mongoose');
 
-// const loginCode = new mongoose.Schema({
-//     number : Number,
-//     code: String,
-//     expiresAt: { type: Date, default: Date.now, index: { expires: '120m' } }
-// });
+const notification = new mongoose.Schema({
+    num : Array,
+    msg: String,
+    expiresAt: { type: Date, default: Date.now, index: { expires: '20d' } }
+});
   
   
-// const LoginCode = mongoose.model('loginCodeadmin', loginCode);
+const Notification = mongoose.model('notification', notification);
 
 
 exports.sentNotif = async (req, res) => {
@@ -21,24 +21,19 @@ exports.sentNotif = async (req, res) => {
             return res.json({massege : "data cant empty"})
         }
 
-        const response = await axios.post(
-            'https://api2.ippanel.com/api/v1/sms/send/webservice/single',
-            {
-                "recipient": num,
-                "sender": "+983000505",
-                "message": msg
-            },
-            {
-              headers: {
-                'accept': 'application/json',
-                'apikey': 'OWVlMTcwY2MtNDdlMy00NDI1LWE3NjAtYzA3OTljNDliMmNlMmVhNjA3ZjBiNzM3ZTQ2ZWFjYjRlZTQzMTk3YzI4ZDY=', // 👈 جایگزین کن با کلید واقعی خودت
-                'Content-Type': 'application/json'
-              }
-            }
-          );
+        const response = new Notification({
+            num,
+            msg
+        })
+        const resp = await response.save()
+        if (!resp) {
+            return res.json({ data : resp})
+        }
+
+        
 
           res.json({
-            send : response
+            send : resp
           })
     } catch (error) {
         res.json({
