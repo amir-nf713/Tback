@@ -7,7 +7,7 @@ app.use('/videos', express.static(path.join(__dirname, 'public', 'videos')));
 const cors = require("cors");
 const { default: axios } = require("axios");
 app.use(cors({
-    origin: ['http://dash.tadrisyar.com', 'https://dash.tadrisyar.com'],
+    origin: ['http://dash.tadrisyar.com', 'https://dash.tadrisyar.com', 'http://localhost:3000'],
     methods: ['PUT', 'GET', 'POST', 'DELETE'],
     credentials: true
 
@@ -19,7 +19,7 @@ app.use(express.urlencoded({ limit: '4000mb', extended: true }));
 
 app.set('trust proxy', true);
 
-const allowedOrigins = ['http://dash.tadrisyar.com', 'https://dash.tadrisyar.com'];
+const allowedOrigins = ['http://dash.tadrisyar.com', 'https://dash.tadrisyar.com', 'http://localhost:3000'];
 
 app.use((req, res, next) => {
     const origin = req.headers.origin;
