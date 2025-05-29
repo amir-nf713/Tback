@@ -58,6 +58,9 @@ app.use(api, sendmony)
 const getprice = require('./app/USD/Rusd')
 app.use(api, getprice)
 
+const notification = require('./app/notification/Rnotification')
+app.use(api, notification)
+
 
 
 const PORT = process.env.PORT || 3001;
