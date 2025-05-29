@@ -16,13 +16,12 @@ const Notification = mongoose.model('notification', notification);
 exports.sentNotif = async (req, res) => {
     try{
 
-        const {num, msg} = req.body
-        if (!num || !msg) {
+        const {msg} = req.body
+        if (!msg) {
             return res.json({massege : "data cant empty"})
         }
 
         const response = new Notification({
-            num,
             msg
         })
         const resp = await response.save()
@@ -35,6 +34,15 @@ exports.sentNotif = async (req, res) => {
           res.json({
             send : resp
           })
+    } catch (error) {
+        res.json({
+            error: error
+        })
+    }
+}
+exports.getNotif = async (req, res) => {
+    try{
+      res.json({ data : await Notification.find() })
     } catch (error) {
         res.json({
             error: error
