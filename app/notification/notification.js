@@ -4,8 +4,11 @@ connectToMongo()
 const mongoose = require('mongoose');
 
 const notification = new mongoose.Schema({
-    num : Array,
     msg: String,
+    title: String,
+    tags: Array,
+    pinned: String,
+    createdAt: {type : Date, default : Date.now()},
     expiresAt: { type: Date, default: Date.now, index: { expires: '20d' } }
 });
   
@@ -16,13 +19,16 @@ const Notification = mongoose.model('notification', notification);
 exports.sentNotif = async (req, res) => {
     try{
 
-        const {msg} = req.body
-        if (!msg) {
+        const {msg, title ,tags, pinned} = req.body
+        if (!msg || !title  || !tags  || !pinned ) {
             return res.json({massege : "data cant empty"})
         }
 
         const response = new Notification({
-            msg
+            msg,
+            title,
+            tags,
+            pinned
         })
         const resp = await response.save()
         if (!resp) {
