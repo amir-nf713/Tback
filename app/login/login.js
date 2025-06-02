@@ -20,6 +20,15 @@ const smsRequestSchema = new mongoose.Schema({
 
 const LoginCode = mongoose.model("loginCode", loginCode);
 
+
+
+const referralSetting = new mongoose.Schema({
+   priceWithroutMony: {type: Number, default: 0},
+   priceByCourse: {type: Number, default: 0}
+})
+
+const ReferralSetting = mongoose.model("referralSetting", referralSetting);
+
 const users = new mongoose.Schema(
   {
     number: { type: String, unique: true },
@@ -37,6 +46,8 @@ const users = new mongoose.Schema(
     gender: { type: String, default: "" },
     referralCode: { type: String, unique: true },
     referralBy: { type: Array, default: [] },
+    referralPrice: { type: Number, default: 0 },
+    referralFrom: String
   },
   { timestamps: true }
 );
@@ -116,7 +127,7 @@ async function generateUniqueReferralCode() {
 
 exports.login = async (req, res) => {
   try {
-    const { number, code } = req.body;
+    const { number, code , referralFrom} = req.body;
     if (!number && !code) {
       return res.json({ massage: "data is empty" });
     }
@@ -138,6 +149,7 @@ const referralCode = await generateUniqueReferralCode();
         const saveuser = new Users({
           number: number,
           referralCode,
+          referralFrom,
         });
 
         const save = await saveuser.save();
