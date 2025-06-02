@@ -35,6 +35,8 @@ const users = new mongoose.Schema(
     email: { type: String, default: "" },
     berthday: { type: String, default: "" },
     gender: { type: String, default: "" },
+    referralCode: { type: String, unique: true },
+    referralBy: { type: Array, default: [] },
   },
   { timestamps: true }
 );
@@ -102,6 +104,16 @@ exports.sendsms = async (req, res) => {
   }
 };
 
+
+async function generateUniqueReferralCode() {
+  let code, exists;
+  do {
+    code = Math.random().toString(36).substring(2, 8).toUpperCase(); // مثل: "A1B2C3"
+    exists = await Users.findOne({ referralCode: code });
+  } while (exists);
+  return code;
+}
+
 exports.login = async (req, res) => {
   try {
     const { number, code } = req.body;
@@ -109,11 +121,15 @@ exports.login = async (req, res) => {
       return res.json({ massage: "data is empty" });
     }
 
+
+
     const findCode = await LoginCode.findOne({ number })
   .sort({ expiresAt: -1 });  // مرتب‌سازی بر اساس تاریخ انقضا به صورت نزولی (جدیدترین اول)
 if (!findCode) {
   return res.json({ message: "No valid code found" });
 }
+
+const referralCode = await generateUniqueReferralCode();
 
 
     if (findCode.number === number && findCode.code === code) {
@@ -121,6 +137,7 @@ if (!findCode) {
       if (!findUser) {
         const saveuser = new Users({
           number: number,
+          referralCode,
         });
 
         const save = await saveuser.save();
