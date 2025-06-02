@@ -45,9 +45,10 @@ const users = new mongoose.Schema(
     berthday: { type: String, default: "" },
     gender: { type: String, default: "" },
     referralCode: { type: String, unique: true },
-    referralBy: { type: Array, default: [] },
+    referralFrom: { type: String, default: null },
+    referralBy: { type: [mongoose.Schema.Types.ObjectId], default: [] },
     referralPrice: { type: Number, default: 0 },
-    referralFrom: String
+    
   },
   { timestamps: true }
 );
@@ -157,6 +158,20 @@ const referralCode = await generateUniqueReferralCode();
         if (!save) {
           return res.json({ massege: "dont save" });
         }
+
+
+        const findByreferral = await Users.findOne({ referralCode : referralFrom })
+        if (!findByreferral) {
+          return res.json({ massege : "cant find user"})
+        }
+
+        await Users.updateOne(
+          { _id: findByreferral._id },
+          { $addToSet: { referralBy: save._id } }
+        );
+        
+
+
         res.json({
           massage: "ok",
           data: save,
