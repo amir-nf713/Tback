@@ -129,9 +129,10 @@ async function generateUniqueReferralCode() {
 exports.login = async (req, res) => {
   try {
     const { number, code , referralFrom} = req.body;
-    if (!number && !code) {
-      return res.json({ massage: "data is empty" });
+    if (!number || !code) {
+      return res.status(400).json({ message: "number or code is missing" });
     }
+    
 
 
 
@@ -160,15 +161,18 @@ const referralCode = await generateUniqueReferralCode();
         }
 
 
-        const findByreferral = await Users.findOne({ referralCode : referralFrom })
-        if (!findByreferral) {
-          return res.json({ massege : "cant find user"})
+        
+        if (referralFrom) {
+          const referrer = await Users.findOne({ referralCode: referralFrom.toUpperCase() });
+          if (referrer) {
+            await Users.updateOne(
+              { _id: referrer._id },
+              { $addToSet: { referralBy: save._id } }
+            );
+          }
         }
 
-        await Users.updateOne(
-          { _id: findByreferral._id },
-          { $addToSet: { referralBy: save._id } }
-        );
+      
         
 
 
