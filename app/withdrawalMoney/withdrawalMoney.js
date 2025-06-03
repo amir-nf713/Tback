@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 
 const sendmony = new mongoose.Schema({
     price: Number,
+    from: String,
     userid: String,
     shaba: String,
     date: {type: Date, default: Date.now},
@@ -58,6 +59,36 @@ exports.postsendmony = async (req, res) => {
 
        const save = await savesendmony.save();
     
+      
+       res.json({
+           massage: "ok"
+       })
+
+    } catch (error) {
+        res.json({
+            massage : error
+        }) 
+    }
+}
+exports.postsendmonyref = async (req, res) => {
+    try {
+       const {price, userid, shaba, from} = req.body
+       if (!price || !userid || !shaba || !from) {
+        return res.json({ massage: "data cant empty"})
+       }
+
+       const savesendmony = new Sendmony({
+        price,
+        userid,
+        shaba,
+        from,
+       });
+
+       const save = await savesendmony.save();
+    
+       if (!save) {
+        return res.json({ massage : "dont save"})
+       }
       
        res.json({
            massage: "ok"
