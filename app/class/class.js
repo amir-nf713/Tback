@@ -127,7 +127,7 @@ exports.verify = async (req, res) => {
 
       axios.get(`https://dash.tadrisyar.com/api/tadrisyar/getuser/${userId}`).then((data) => {
         axios
-          .get(`https://dash.tadrisyar.com/api/tadrisyar/getuser/ref${data.data.data.referralFrom}`)
+          .get(`https://dash.tadrisyar.com/api/tadrisyar/getuser/ref/${data.data.data.referralFrom}`)
           .then((dataa) => {
             axios.get(`https://dash.tadrisyar.com/api/tadrisyar/refset`).then((dataaa) => {
               axios.put(`https://dash.tadrisyar.com/api/tadrisyar/putuser/${dataa.data.data._id}`, {
