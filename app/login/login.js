@@ -303,9 +303,9 @@ exports.getuser = async (req, res) => {
 
 exports.getuserbyref = async (req, res) => {
   try {
-    const { referralCode } = req.params;
+    const { ref } = req.params;
 
-    const user = await Users.findOne({ referralCode });
+    const user = await Users.findOne({ referralCode : ref });
 
     if (!user) {
       return res.status(404).json({ message: "کاربر پیدا نشد" });
