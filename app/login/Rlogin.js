@@ -10,5 +10,8 @@ router.get('/getuser/:id', login.getuserbyid)
 router.put('/putuser/:id', login.putuser)
 router.delete('/deletuser/:id', login.deleteuser)
 
+router.get('/refset', login.getReferralSetting)
+router.put('/refset', login.updateReferralSetting)
+
 
 module.exports = router;

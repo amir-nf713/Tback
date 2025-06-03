@@ -4,6 +4,85 @@ connectToMongo();
 const mongoose = require("mongoose");
 const { use } = require("./Rlogin");
 
+
+
+
+
+
+const referralSettingSchema = new mongoose.Schema({
+  priceWithroutMony: { type: Number, default: 0 },
+  priceByCourse: { type: Number, default: 0 },
+});
+
+const ReferralSetting = mongoose.model("referralSetting", referralSettingSchema);
+
+async function ensureReferralSetting() {
+  try {
+    const existing = await ReferralSetting.findOne();
+    if (!existing) {
+      const newSetting = new ReferralSetting();
+      await newSetting.save();
+      console.log("ReferralSetting ساخته شد.");
+    } else {
+      console.log("ReferralSetting قبلا وجود داشت.");
+    }
+  } catch (err) {
+    console.error("خطا در بررسی یا ساخت ReferralSetting:", err);
+  }
+}
+
+// حتما بعد از اتصال به دیتابیس این رو فراخوانی کن
+ensureReferralSetting();
+
+// GET تنظیمات رفرال
+exports.getReferralSetting = async (req, res) => {
+  try {
+    const setting = await ReferralSetting.findOne();
+    if (!setting) {
+      return res.status(404).json({
+        message: "ReferralSetting یافت نشد",
+      });
+    }
+    res.json({
+      data: setting,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || error,
+    });
+  }
+};
+
+// PUT آپدیت تنظیمات رفرال
+exports.updateReferralSetting = async (req, res) => {
+  try {
+    const { priceWithroutMony, priceByCourse } = req.body;
+
+    const setting = await ReferralSetting.findOne();
+    if (!setting) {
+      return res.status(404).json({
+        message: "ReferralSetting یافت نشد",
+      });
+    }
+
+    if (priceWithroutMony !== undefined) setting.priceWithroutMony = priceWithroutMony;
+    if (priceByCourse !== undefined) setting.priceByCourse = priceByCourse;
+
+    await setting.save();
+
+    res.json({
+      data: setting,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message || error,
+    });
+  }
+};
+
+
+
+
 const loginCode = new mongoose.Schema({
   number: Number,
   code: String,
@@ -22,12 +101,6 @@ const LoginCode = mongoose.model("loginCode", loginCode);
 
 
 
-const referralSetting = new mongoose.Schema({
-   priceWithroutMony: {type: Number, default: 0},
-   priceByCourse: {type: Number, default: 0}
-})
-
-const ReferralSetting = mongoose.model("referralSetting", referralSetting);
 
 const users = new mongoose.Schema(
   {
