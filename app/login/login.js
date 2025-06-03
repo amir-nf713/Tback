@@ -303,20 +303,24 @@ exports.getuser = async (req, res) => {
 
 exports.getuserbyref = async (req, res) => {
   try {
-    const referralCode = req.params.referralCode
-    const user = await Users.findOne({ referralCode })
+    const { referralCode } = req.params;
+
+    const user = await Users.findOne({ referralCode });
+
     if (!user) {
-      return res.json({massage: "user not found" })
+      return res.status(404).json({ message: "کاربر پیدا نشد" });
     }
-    res.json({
-      data: user
+
+    res.status(200).json({
+      data: user,
     });
   } catch (error) {
-    res.json({
-      massage: error,
+    res.status(500).json({
+      message: error.message || "خطا در دریافت کاربر",
     });
   }
 };
+
 
 exports.getuserbyid = async (req, res) => {
     try {
