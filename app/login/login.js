@@ -301,22 +301,22 @@ exports.getuser = async (req, res) => {
   }
 };
 
-// exports.getuserbyref = async (req, res) => {
-//   try {
-//     const referralCode = req.params.referralCode
-//     const user = await Users.findOne({ referralCode })
-//     if (!user) {
-//       return res.json({massage: "user not found" })
-//     }
-//     res.json({
-//       data: user
-//     });
-//   } catch (error) {
-//     res.json({
-//       massage: error,
-//     });
-//   }
-// };
+exports.getuserbyref = async (req, res) => {
+  try {
+    const referralCode = req.params.referralCode
+    const user = await Users.findOne({ referralCode })
+    if (!user) {
+      return res.json({massage: "user not found" })
+    }
+    res.json({
+      data: user
+    });
+  } catch (error) {
+    res.json({
+      massage: error,
+    });
+  }
+};
 
 exports.getuserbyid = async (req, res) => {
     try {
